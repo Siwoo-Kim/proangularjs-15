@@ -1,0 +1,57 @@
+<!DOCTYPE HTML>
+<html ng-app="exampleApp">
+<head>
+    <title>Directives</title>
+    <script src="ngmodules/angular.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+    <script>
+        angular.module("exampleApp", [])
+            .directive("unorderedList", function () {
+                return function (scope, element, attrs) {
+                    var data = scope[attrs["unorderedList"]];
+                    var propertyExpression = attrs["propertyName"];
+                    var listElem = angular.element("<ul>");
+                    element.append(listElem);
+
+                    if(angular.isArray(data)){
+                        data.forEach((datagram) => {
+                            var itemElem = angular.element("<li>")
+                                .text(scope.$eval(propertyExpression, datagram));
+                            var watcherFn = (_scope) => _scope.$eval(propertyExpression, datagram);
+                            scope.$watch(watcherFn, (newVal, oldVal) => itemElem.text(newVal));
+                            listElem.append(itemElem);
+                        });
+                    }
+
+                }
+            })
+            .controller("defaultCtrl", function ($scope) {
+                $scope.products = [
+                    { name: "Apples", category: "Fruit", price: 1.20, expiry: 10 },
+                    { name: "Bananas", category: "Fruit", price: 2.42, expiry: 6 },
+                    { name: "Pears", category: "Fruit", price: 2.02, expiry: 6 },
+                ];
+
+                $scope.incrementPrices = function () {
+                    $scope.products.forEach(product => {product.price++; console.log(product)});
+                }
+            })
+    </script>
+<body ng-controller="defaultCtrl" class="container">
+    <div class="card card-default">
+        <div class="card-heading">
+            <h3>Products</h3>
+        </div>
+        <div class="card-body">
+            <button class="btn btn-default" ng-click="incrementPrices()">
+                Increment Price
+            </button>
+        </div>
+        <div class="card-body">
+            <div unordered-list="products" property-name="price| currency"></div>
+        </div>
+    </div>
+</body>
+</html>
